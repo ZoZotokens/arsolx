@@ -1,20 +1,21 @@
 import os
 from flask import Flask, request, jsonify
-from flask_cors import CORS  # اضافه کردن CORS
+from flask_cors import CORS
 import ccxt
 import pandas as pd
 from ta.trend import EMAIndicator, MACD
 from ta.momentum import RSIIndicator
 
 app = Flask(__name__)
-CORS(app)  # فعال کردن CORS برای همه مسیرها
+CORS(app)
 
 def analyze(symbol, timeframe, limit):
-    exchange = ccxt.binance()
+    exchange = ccxt.kucoin()  # تغییر به KuCoin
     if "/" not in symbol and symbol.endswith("USDT"):
         symbol = symbol[:-4] + "/USDT"
     elif "/" not in symbol and len(symbol) > 3:
         symbol = symbol[:3] + "/" + symbol[3:]
+    
     ohlcv = exchange.fetch_ohlcv(symbol.upper(), timeframe, limit=limit)
     df = pd.DataFrame(ohlcv, columns=['timestamp', 'open', 'high', 'low', 'close', 'volume'])
     df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms')
@@ -52,11 +53,7 @@ def analyze(symbol, timeframe, limit):
         elif slope < 0:
             slope_vote = -1
 
-    w_linear = 0.3
-    w_ma = 0.4
-    w_slope = 0.3
-
-    score = (linear_vote * w_linear) + (ma_vote * w_ma) + (slope_vote * w_slope)
+    score = (linear_vote * 0.3) + (ma_vote * 0.4) + (slope_vote * 0.3)
 
     final_trend = "نامشخص"
     if score > 0.1:
@@ -104,7 +101,6 @@ def analyze(symbol, timeframe, limit):
         }
     }
 
-# مسیر /analyze فعال و CORS فعال
 @app.route('/analyze', methods=['POST'])
 def analyze_route():
     data = request.get_json()
