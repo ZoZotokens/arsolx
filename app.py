@@ -1,11 +1,13 @@
 import os
 from flask import Flask, request, jsonify
+from flask_cors import CORS  # اضافه کردن CORS
 import ccxt
 import pandas as pd
 from ta.trend import EMAIndicator, MACD
 from ta.momentum import RSIIndicator
 
 app = Flask(__name__)
+CORS(app)  # فعال کردن CORS برای همه مسیرها
 
 def analyze(symbol, timeframe, limit):
     exchange = ccxt.binance()
@@ -102,6 +104,7 @@ def analyze(symbol, timeframe, limit):
         }
     }
 
+# مسیر /analyze فعال و CORS فعال
 @app.route('/analyze', methods=['POST'])
 def analyze_route():
     data = request.get_json()
