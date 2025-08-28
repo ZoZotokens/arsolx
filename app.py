@@ -10,7 +10,7 @@ app = Flask(__name__)
 CORS(app)
 
 def analyze(symbol, timeframe, limit):
-    exchange = ccxt.kucoin()  # تغییر به KuCoin
+    exchange = ccxt.kucoin()
     if "/" not in symbol and symbol.endswith("USDT"):
         symbol = symbol[:-4] + "/USDT"
     elif "/" not in symbol and len(symbol) > 3:
@@ -98,7 +98,11 @@ def analyze(symbol, timeframe, limit):
             "ma_vote": ma_vote,
             "slope_vote": slope_vote,
             "score": round(score, 3)
-        }
+        },
+        "candles": df[['timestamp','open','high','low','close']].to_dict(orient='records'),
+        "rsi_values": rsi.round(2).tolist(),
+        "macd_values": macd_line.round(6).tolist(),
+        "macd_signal_values": macd_signal.round(6).tolist()
     }
 
 @app.route('/analyze', methods=['POST'])
@@ -113,4 +117,3 @@ def analyze_route():
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
-
