@@ -78,7 +78,7 @@ def analyze(symbol, timeframe, limit):
         elif 40 <= rsi_val < 50:
             strength = " ضعیف"
 
-    tail_n = min(50, len(df))
+    tail_n = min(30, len(df))
     resistance = round(df['high'].tail(tail_n).max(), 8)
     support = round(df['low'].tail(tail_n).min(), 8)
     timestamp = df['timestamp'].iloc[-1]
@@ -113,3 +113,4 @@ def analyze_route():
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
+
